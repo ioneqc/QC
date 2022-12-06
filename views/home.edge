@@ -17,7 +17,7 @@
   <div id="app">
     <v-app>
       <v-main>
-        <v-container>
+        <v-container fluid>
           <v-data-table :search="search" :headers="headers" :items="desserts" class="elevation-1">
             <template v-slot:top>
               <v-toolbar flat>
@@ -134,7 +134,7 @@
           { text: 'Material Name', value: 'name' },
           { text: 'Supplier', value: 'supplier' },
           { text: 'Current Stock', value: 'stock' },
-          { text: 'Expiry Date', value: 'expiry_date' },
+          { text: 'Expiry Date', value: 'expiry_date', width: 170 },
           { text: 'On Order', value: 'order'},
           { text: 'Stock Status', value: 'stock_status'},
           { text: 'Actions', value: 'actions'},
