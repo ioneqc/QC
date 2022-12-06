@@ -6,6 +6,7 @@ const { registerEdge } = require('./libs/edge')
 
 const auth = require('./middlewares/auth')
 const registerParsers = require('./libs/parsers')
+const saveLastUpdate = require('./middlewares/saveLastUpdate')
 
 const port = 3000
 
@@ -38,7 +39,7 @@ app.post('/product', (req, res) => {
   authorize().then(async auth => {
     const sheets = google.sheets({ version: 'v4', auth });
     try {
-      await sheets.spreadsheets.values.append({
+      let response = await sheets.spreadsheets.values.append({
         spreadsheetId: '16jJ9UVvFse3Teid6yKQU36zU9oyNfl7U_xhQQIHMwtE',
         range: `Products`,
         valueInputOption: 'USER_ENTERED',
@@ -49,7 +50,11 @@ app.post('/product', (req, res) => {
           values: [req.body.requestData]
         },
       })
-      res.sendStatus(200)
+      if (response) {
+        saveLastUpdate('create', req.session.auth).then(() => {
+          res.sendStatus(200)
+        })
+      }
     } catch (error) {
       console.log(error)
       res.send(error)
@@ -64,7 +69,7 @@ app.put('/product/:id', (req, res) => {
   authorize().then(async auth => {
     const sheets = google.sheets({ version: 'v4', auth });
     try {
-      await sheets.spreadsheets.values.update({
+      let response = await sheets.spreadsheets.values.update({
         spreadsheetId: '16jJ9UVvFse3Teid6yKQU36zU9oyNfl7U_xhQQIHMwtE',
         range,
         valueInputOption: 'USER_ENTERED',
@@ -74,7 +79,11 @@ app.put('/product/:id', (req, res) => {
           values: [req.body.requestData]
         },
       })
-      res.sendStatus(200)
+      if (response) {
+        saveLastUpdate('edit', req.session.auth).then(() => {
+          res.sendStatus(200)
+        })
+      }
     } catch (error) {
       console.log(error)
       res.send(error)
@@ -106,7 +115,9 @@ app.delete('/product/:id', (req, res) => {
       }
     })
     if (response) {
-      res.send({ deleted: true })
+      saveLastUpdate('delete', req.session.auth).then(() => {
+        res.send({ deleted: true })
+      })
     }
   })
 })
